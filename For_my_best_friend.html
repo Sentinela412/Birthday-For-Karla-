@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Para mi mejor amiga</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600&display=swap');
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        #digital-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        .terminal {
+            position: relative;
+            z-index: 2;
+            width: 90%;
+            max-width: 500px;
+            height: 85vh;
+            background-color: rgba(10, 10, 15, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 0 30px rgba(255, 46, 213, 0.3);
+            border: 2px solid #ff2ed5;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .terminal-header {
+            border-bottom: 1px solid rgba(255, 46, 213, 0.3);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            color: #ff2ed5;
+            font-size: 1.1rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            flex-grow: 1;
+            overflow: hidden;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Estilos QR */
+        #qrcode { 
+            background: #f1c40f; 
+            padding: 15px; 
+            border-radius: 10px; 
+            box-shadow: 0 0 20px #f1c40f; 
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .loading-container { color: #ff2ed5; font-weight: 600; margin-bottom: 10px; }
+        .loading-dots::after { content: ''; animation: dots 1.5s infinite; }
+        @keyframes dots { 0% { content: ''; } 33% { content: '.'; } 66% { content: '..'; } 100% { content: '...'; } }
+
+        .message-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-right: 8px;
+            margin-bottom: 15px;
+            color: #e0e0e0;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .message-content::-webkit-scrollbar { width: 4px; }
+        .message-content::-webkit-scrollbar-thumb { background: #ff2ed5; border-radius: 10px; }
+
+        .pink-text { color: #ff2ed5; font-weight: 600; }
+
+        .btn-container {
+            flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 46, 213, 0.1);
+        }
+
+        .btn-action {
+            background: linear-gradient(45deg, #4b1a3e, #1a1a2e);
+            border: 2px solid #ff2ed5;
+            color: #fff;
+            padding: 12px 30px;
+            font-size: 14px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-family: 'Rajdhani', sans-serif;
+            text-transform: uppercase;
+            font-weight: 600;
+            box-shadow: 0 0 15px rgba(255, 46, 213, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-icon-only { padding: 12px; border-radius: 50%; width: 50px; height: 50px; font-size: 20px; }
+        .btn-yellow { border-color: #f1c40f; color: #f1c40f; }
+
+        .photo-wrapper {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        #birthday-photo {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 10px;
+            border: 2px solid #ff2ed5;
+        }
+
+        .heart-wrapper {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .realistic-heart {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            background-color: #f1c40f;
+            transform: rotate(-45deg);
+            animation: beat 0.8s infinite alternate cubic-bezier(0.42, 0, 0.58, 1);
+            box-shadow: -10px 10px 50px rgba(241, 196, 15, 0.6), inset 5px -5px 15px rgba(0,0,0,0.3);
+        }
+
+        .realistic-heart::before, .realistic-heart::after {
+            content: "";
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-color: #f1c40f;
+            border-radius: 50%;
+        }
+
+        .realistic-heart::before { top: -50px; left: 0; }
+        .realistic-heart::after { top: 0; left: 50px; }
+
+        @keyframes beat {
+            0% { transform: rotate(-45deg) scale(1); }
+            100% { transform: rotate(-45deg) scale(1.2); filter: drop-shadow(0 0 25px #f1c40f); }
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="background-music" loop>
+        <source src="https://files.catbox.moe/vaqlq1.mp3" type="audio/mpeg">
+    </audio>
+
+    <canvas id="digital-rain"></canvas>
+    
+    <div class="terminal">
+        <div class="terminal-header" id="header-text">> Sistema de Seguridad</div>
+        
+        <div id="qr-screen" class="screen" style="display: flex; align-items: center; justify-content: center; text-align: center;">
+            <div id="qrcode" onclick="showEnvelope()"></div>
+            <p style="color: #f1c40f; margin-top: 20px;">TOCA PARA DESBLOQUEAR</p>
+        </div>
+
+        <div id="envelope-screen" class="screen" style="align-items: center; justify-content: center;">
+            <div style="font-size: 80px; color: #ff2ed5; margin-bottom: 30px; filter: drop-shadow(0 0 10px #ff2ed5);"><i class="far fa-envelope"></i></div>
+            <button class="btn-action" onclick="showDedication()">Abrir Mensaje</button>
+        </div>
+
+        <div id="text-screen" class="screen">
+            <div class="message-content">
+                <div class="loading-container">> Cargando mensaje<span class="loading-dots"></span></div>
+                <p>Hoy no es solo un día más en el calendario; es el día en el que el mundo recibió a una de las personas más increíbles que conozco. Desde que llegaste a mi vida, todo cobró un sentido diferente: aprendí a reír más fuerte, a escuchar con el corazón y a valorar los pequeños detalles que hacen grande la vida.</p>
+                <p>Eres esa mezcla única de <span class="pink-text">inteligencia, dulzura y fuerza</span> que inspira a quienes te rodean. No solo eres mi mejor amiga, eres mi cómplice, mi confidente y una de las razones por las que creo en la bondad de este mundo. Gracias por ser mi espejo en los días grises y mi luz en los momentos brillantes.</p>
+                <p>Desde que estás, todo es como tener <span class="pink-text">"un rifle talibán"</span> que siempre apunta a la felicidad. Es como tener ese equipo que no necesita más que nuestra complicidad para hacer que todo fluya, como si pisáramos <span class="pink-text">tierra firme</span> en medio de cualquier tormenta. Eres mi aliada en cada reto, mi compañera en cada aventura, y esa persona que, sin importar nada, siempre está ahí para dar mil vueltas a cualquier problema y convertirlo en una sonrisa.</p>
+                <p>Hoy, en tu día, te deseo que la vida te devuelva toda la alegría que das, que cada sueño que persigas se convierta en realidad, y que nunca dejes de ser esa persona auténtica, trabajadora y llena de amor que eres. Que este año esté lleno de risas, logros y momentos inolvidables.</p>
+                <p>¡Feliz cumpleaños, Karla! Que este 3 de abril sea solo el comienzo de un año lleno de bendiciones. Eres especial, no lo olvides nunca.</p>
+                <p style="color: #ff2ed5; font-weight: bold; margin-top: 15px;">-- Joni</p>
+            </div>
+            <div class="btn-container">
+                <button class="btn-action btn-icon-only" onclick="showPhoto()">
+                    <i class="fas fa-camera"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="photo-screen" class="screen">
+            <div class="photo-wrapper">
+                <img src="https://files.catbox.moe/42afgj.png" id="birthday-photo" alt="Foto">
+            </div>
+            <div class="btn-container">
+                <button class="btn-action btn-yellow" onclick="showHeart()">Surprise</button>
+            </div>
+        </div>
+
+        <div id="heart-screen" class="screen">
+            <div class="heart-wrapper">
+                <div class="realistic-heart"></div>
+                <div style="color: #f1c40f; margin-top: 60px; font-weight: bold; font-size: 1.5rem; text-shadow: 0 0 10px #f1c40f;">Para Siempre</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Lluvia Digital
+        const rainCanvas = document.getElementById('digital-rain');
+        const rCtx = rainCanvas.getContext('2d');
+        function resizeRain() { rainCanvas.width = window.innerWidth; rainCanvas.height = window.innerHeight; }
+        window.addEventListener('resize', resizeRain);
+        resizeRain();
+        const drops = Array(Math.floor(rainCanvas.width / 15)).fill(1);
+        function drawRain() {
+            rCtx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            rCtx.fillRect(0, 0, rainCanvas.width, rainCanvas.height);
+            rCtx.fillStyle = '#ff2ed5';
+            rCtx.font = '15px monospace';
+            drops.forEach((y, i) => {
+                rCtx.fillText(Math.random() > 0.5 ? "0" : "1", i * 15, y * 15);
+                if (y * 15 > rainCanvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            });
+        }
+        setInterval(drawRain, 50);
+
+        // Generar QR
+        new QRCode(document.getElementById("qrcode"), { 
+            text: "https://sentinela412.github.io/Birthday-For-Karla-/", 
+            width: 180, height: 180, 
+            colorLight : "#f1c40f",
+            colorDark: "#000000"
+        });
+
+        const music = document.getElementById('background-music');
+        function hideAll() { document.querySelectorAll('.screen').forEach(s => s.style.display = 'none'); }
+
+        // Navegación
+        function showEnvelope() {
+            hideAll();
+            document.getElementById('envelope-screen').style.display = 'flex';
+            document.getElementById('header-text').innerText = "> Acceso Concedido";
+        }
+
+        function showDedication() {
+            hideAll();
+            document.getElementById('text-screen').style.display = 'flex';
+            document.getElementById('header-text').innerText = "> Para mi mejor amiga";
+            music.volume = 0.4; music.play().catch(() => {});
+        }
+
+        function showPhoto() {
+            hideAll();
+            document.getElementById('photo-screen').style.display = 'flex';
+            document.getElementById('header-text').innerText = "> Gracias por el apodo (enano?)";
+        }
+
+        function showHeart() {
+            hideAll();
+            document.getElementById('heart-screen').style.display = 'flex';
+            document.getElementById('header-text').innerText = "> Nunca te olvides de mi";
+        }
+
+        // Iniciar
+        document.getElementById('qr-screen').style.display = 'flex';
+    </script>
+</body>
+</html>
